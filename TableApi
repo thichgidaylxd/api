@@ -1,0 +1,51 @@
+BASE_URL: http://localhost:8081/restaurant/api
+
++ GET: /tables
+    {
+    "code": 200,
+    "status": "success",
+    "message": "Danh sách bàn",
+    "data": [
+        {
+            "id": "2f024924-13c6-46ae-9b59-d00d310dc417",
+            "tableType": {
+                "id": "033bc6d6-8e47-4697-a3db-58b78bce6e5b",
+                "name": "1111"
+            },
+            "name": "Bàn 10",
+            "status": "Trống",
+            "maxPerson": null,
+            "note": null
+        },
+
+        {
+            "id": "74f6d22c-2b33-48cf-b0cf-000f329b3aa0",
+            "tableType": {
+                "id": "033bc6d6-8e47-4697-a3db-58b78bce6e5b",
+                "name": "1111"
+            },
+            "name": "Bàn 2",
+            "status": "Trống",
+            "maxPerson": null,
+            "note": null
+        }
+      ]
+}
+
+
++ POST: /tables
+
+      {
+            "name": "Bàn 11",
+            "tableType": {
+                "id": "033bc6d6-8e47-4697-a3db-58b78bce6e5b",
+                "name": "Ban Vip"
+            }
+
+      }
+
+
+
+
+
++  DELETE: 
