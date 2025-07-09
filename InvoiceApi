@@ -1,0 +1,89 @@
+// Vô đoạn này nhắn cho t
++ GET: /invoice       // Lấy tất cả hóa đơn   //giống y response của post
+{
+    "code": 200,
+    "status": "success",
+    "message": "Tạo hóa đơn thành công",
+    "data": 
+    [
+        {
+          "invoiceId": "7739d2f6-2f5b-4a75-a0ca-e040c4e96fea",
+          "tableName": "Bàn 2",
+          "invoiceDishRespones": // List of dish on the table 
+                                [
+                                    {
+                                        "invoiceId": "7739d2f6-2f5b-4a75-a0ca-e040c4e96fea",
+                                        "dishId": "80472a60-4014-4e76-8031-3531f75f6fca",
+                                        "dishName": "Phở",
+                                        "price": 50000.00,
+                                        "unit": "món",
+                                        "image": null,
+                                        "quantity": 12
+                                    },
+                                    {
+                                        "invoiceId": "7739d2f6-2f5b-4a75-a0ca-e040c4e96fea",
+                                        "dishId": "80472a60-4014-4e76-8031-3531f75f6fca",
+                                        "dishName": "Phở",
+                                        "price": 50000.00,
+                                        "unit": "món",
+                                        "image": null,
+                                        "quantity": 12
+                                    }
+                                ],
+          "customer": {
+              "id": "3bab4cdf-642d-416d-b695-44a2d3fecf79",
+              "name": "Dũng",
+              "phone": "1234568810"
+          },
+          "status": "paid"
+      },.....
+  ]
+}
++ GET: /invoice/{tableId}   //giống y response của post, chỉ khác message:"Danh sách hóa đơn theo bàn"
+
+
++ POST: /invoice/{tableId} (create invoice)
+  - Request: 
+{
+  "customerName": "Dũng",
+  "customerPhone": "1234568810"
+}
+
+
+  - Response: 
+{
+    "code": 200,
+    "status": "success",
+    "message": "Tạo hóa đơn thành công",
+    "data": {
+        "invoiceId": "7739d2f6-2f5b-4a75-a0ca-e040c4e96fea",
+        "tableName": "Bàn 2",
+        "invoiceDishRespones": // List of dish on the table 
+                              [
+                                  {
+                                      "invoiceId": "7739d2f6-2f5b-4a75-a0ca-e040c4e96fea",
+                                      "dishId": "80472a60-4014-4e76-8031-3531f75f6fca",
+                                      "dishName": "Phở",
+                                      "price": 50000.00,
+                                      "unit": "món",
+                                      "image": null,
+                                      "quantity": 12
+                                  },
+                                  {
+                                      "invoiceId": "7739d2f6-2f5b-4a75-a0ca-e040c4e96fea",
+                                      "dishId": "80472a60-4014-4e76-8031-3531f75f6fca",
+                                      "dishName": "Phở",
+                                      "price": 50000.00,
+                                      "unit": "món",
+                                      "image": null,
+                                      "quantity": 12
+                                  }
+                              ],
+        "customer": {
+            "id": "3bab4cdf-642d-416d-b695-44a2d3fecf79",
+            "name": "Dũng",
+            "phone": "1234568810"
+        },
+        "status": "paid"
+    }
+}
