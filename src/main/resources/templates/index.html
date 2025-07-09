@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Quản lý bàn - Realtime</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        body { font-family: Arial; padding: 10px; }
+        input, button, select { margin: 6px; }
+        li { margin: 8px 0; }
+        .section { margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+
+<h2>🪑 Quản lý bàn realtime</h2>
+<button onclick="connect()">🔌 Kết nối WebSocket</button>
+<button onclick="disconnect()">❌ Ngắt kết nối</button>
+
+<div class="section">
+    <h3>➕ Thêm bàn</h3>
+    <input type="text" id="tableName" placeholder="Tên bàn" />
+    <select id="tableTypeSelect">
+        <option disabled selected>-- Chọn loại bàn --</option>
+    </select>
+    <button onclick="addTable()">Thêm bàn</button>
+</div>
+
+<div class="section">
+    <h3>➕ Thêm loại bàn</h3>
+    <input type="text" id="tableTypeName" placeholder="Tên loại bàn" />
+    <button onclick="addTableType()">Thêm loại bàn</button>
+</div>
+
+<div class="section">
+    <h3>📋 Danh sách bàn</h3>
+    <ul id="tableList"></ul>
+</div>
+
+<div class="section">
+    <h3>📦 Danh sách loại bàn</h3>
+    <ul id="tableTypeList"></ul>
+</div>
+
+<div class="section">
+    <h3>🍽️ Danh sách món nhà hàng</h3>
+    <ul id="dishList"></ul>
+</div>
+
+<div class="section">
+    <h3>🧾 Món đã gọi trong bàn</h3>
+    <input type="text" id="selectedTableId" placeholder="ID bàn cần xem món" />
+    <button onclick="loadOrderItems()">📥 Tải món trong bàn</button>
+    <ul id="orderItemList"></ul>
+
+</div>
+
+<script>
+    const BASE_URL = "http://localhost:8081/restaurant/api";
+    let stompClient = null;
+    let tables = [];
+    let tableTypes = [];
+    let orderItems = [];
+    function connect() {
+      const socket = new SockJS(`${BASE_URL}/ws/tables`);
+      stompClient = Stomp.over(socket);
+      stompClient.connect({}, function (frame) {
+        console.log("✅ Kết nối WebSocket:", frame);
+
+        stompClient.subscribe("/topic/table-added", msg => {
+          const table = JSON.parse(msg.body);
+          tables.push(table);
+          renderTables();
+        });
+
+        stompClient.subscribe("/topic/table-deleted", msg => {
+          const table = JSON.parse(msg.body);
+          tables = tables.filter(t => t.id !== table.id);
+          renderTables();
+        });
+
+        stompClient.subscribe("/topic/tabletype-added", msg => {
+          const type = JSON.parse(msg.body);
+          tableTypes.push(type);
+          renderTableTypes();
+        });
+
+        stompClient.subscribe("/topic/tabletype-deleted", msg => {
+          const type = JSON.parse(msg.body);
+          tableTypes = tableTypes.filter(t => t.id !== type.id);
+          renderTableTypes();
+        });
+
+        loadTables();
+        loadTableTypes();
+        loadDishes();
+      });
+    }
+
+    function disconnect() {
+      if (stompClient) stompClient.disconnect();
+      console.log("❌ Ngắt kết nối");
+    }
+
+    async function loadTables() {
+      const res = await fetch(`${BASE_URL}/tables`);
+      const response = await res.json();
+      tables = response.data || [];
+      renderTables();
+    }
+
+
+    async function loadTableTypes() {
+      const res = await fetch(`${BASE_URL}/tables/type`);
+      const response = await res.json();
+      tableTypes = response.data || [];
+      renderTableTypes();
+    }
+
+    async function loadDishes() {
+      const res = await fetch(`${BASE_URL}/dishes`);
+      const response = await res.json();
+      const dishes = response.data || [];
+      renderDishes(dishes);
+    }
+
+    async function addTable() {
+      const name = document.getElementById("tableName").value;
+      const typeId = document.getElementById("tableTypeSelect").value;
+      if (!name.trim() || !typeId) return alert("⚠️ Nhập đầy đủ");
+
+      const payload = { name, tableType: { id: typeId } };
+      const res = await fetch(`${BASE_URL}/tables`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const response = await res.json();
+      alert(response.message || "✅ Đã thêm bàn");
+    }
+
+    async function addTableType() {
+      const name = document.getElementById("tableTypeName").value;
+      if (!name.trim()) return alert("⚠️ Nhập tên loại bàn");
+
+      const payload = { name };
+      const res = await fetch(`${BASE_URL}/tables/type`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const response = await res.json();
+      alert(response.message || "✅ Đã thêm loại bàn");
+    }
+
+    async function deleteTable(id) {
+      if (!confirm("Xóa bàn này?")) return;
+      const res = await fetch(`${BASE_URL}/tables/${id}`, { method: "DELETE" });
+      const response = await res.json();
+      alert(response.message || "✅ Đã xóa bàn");
+    }
+
+    async function deleteTableType(id) {
+      if (!confirm("Xóa loại bàn này?")) return;
+      const res = await fetch(`${BASE_URL}/tables/type/${id}`, { method: "DELETE" });
+      const response = await res.json();
+      alert(response.message || "✅ Đã xóa loại bàn");
+    }
+
+    function renderTables() {
+      const list = document.getElementById("tableList");
+      list.innerHTML = "";
+      tables.forEach(table => {
+        list.innerHTML += `
+          <li>
+            🪑 <strong>${table.name}</strong> | ID: ${table.id}
+            <button onclick="deleteTable('${table.id}')">🗑️ Xóa</button>
+          </li>
+        `;
+      });
+    }
+
+    function renderTableTypes() {
+      const list = document.getElementById("tableTypeList");
+      list.innerHTML = "";
+      const select = document.getElementById("tableTypeSelect");
+      select.innerHTML = `<option disabled selected>-- Chọn loại bàn --</option>`;
+
+      tableTypes.forEach(type => {
+        list.innerHTML += `
+          <li>📦 ${type.name}
+            <button onclick="deleteTableType('${type.id}')">🗑️ Xóa</button>
+          </li>
+        `;
+        select.innerHTML += `<option value="${type.id}">${type.name}</option>`;
+      });
+    }
+
+    function renderDishes(dishes) {
+      const list = document.getElementById("dishList");
+      list.innerHTML = "";
+      dishes.forEach(dish => {
+        list.innerHTML += `
+          <li>
+            🍴 <strong>${dish.name}</strong> - ${dish.price}đ/${dish.unit}
+            <input type="text" placeholder="ID bàn" id="add-${dish.id}" />
+            <button onclick="addDishToTable('${dish.id}')">➕ Thêm</button>
+          </li>
+        `;
+      });
+    }
+
+    async function addDishToTable(dishId) {
+      const input = document.getElementById("add-" + dishId);
+      const tableId = input.value.trim();
+      if (!tableId) return alert("⚠️ Nhập ID bàn");
+
+      const payload = {
+        dishId,
+        tableId,
+        quanlity: 1,
+        note: ""
+      };
+
+      const res = await fetch(`${BASE_URL}/order/items`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const response = await res.json();
+      alert(response.message || "✅ Đã thêm món vào bàn");
+    }
+
+    function loadOrderItems() {
+      const tableId = document.getElementById("selectedTableId").value.trim();
+      if (!tableId) return alert("⚠️ Nhập ID bàn");
+
+      // ✅ Gọi subscribe socket theo bàn
+      subscribeToTable(tableId);
+
+      fetch(`${BASE_URL}/order/items/${tableId}`)
+        .then(res => res.json())
+        .then(response => {
+          renderOrderItems(response.data || [], tableId);
+        });
+    }
+    function renderOrderItems(items, tableId) {
+      orderItems = items; // 💾 Lưu vào biến toàn cục
+
+      const list = document.getElementById("orderItemList");
+      list.innerHTML = "";
+
+      if (items.length === 0) {
+        list.innerHTML = "<li>🚫 Không có món nào trong bàn này.</li>";
+        return;
+      }
+
+      items.forEach(item => {
+        list.innerHTML += `
+          <li data-item-id="${item.id}">
+            🍽️ <strong>${item.dishName}</strong> -
+            <span class="item-quantity">${item.quantity}</span> ${item.unit}
+            <br/>
+            💬 Ghi chú: ${item.note || "Không"}
+            <button onclick="updateQuantityOnUI('${item.id}', 1)">➕</button>
+            <button onclick="updateQuantityOnUI('${item.id}', -1)">➖</button>
+          </li>
+        `;
+      });
+    }
+
+     function subscribeToTable(tableId) {
+      if (!stompClient) return;
+
+      stompClient.subscribe(`/topic/tables/${tableId}/orderitem-added`, message => {
+        const item = JSON.parse(message.body);
+        console.log("📡 Món thêm qua socket:", item);
+        loadOrderItems(); // chỉ gọi ở đây — không cần gọi lại sau patch nữa
+      });
+
+
+      stompClient.subscribe(`/topic/tables/${tableId}/orderitem-updatequantity`, message => {
+        const item = JSON.parse(message.body);
+        const { id, quantity } = item;
+        updateQuantityOnUI(id, quantity); // cập nhật hiển thị mà không cần gọi lại API
+      });
+
+      // 🗑️ Khi xoá món khỏi bàn
+      stompClient.subscribe(`/topic/tables/${tableId}/orderitem`, message => {
+        const item = JSON.parse(message.body);
+        console.log("🗑️ Món đã xoá:", item);
+        loadOrderItems(); // hiển thị lại danh sách món
+      });
+    }
+
+
+    function updateQuantityOnUI(id, quantity) {
+      const list = document.getElementById("orderItemList");
+      const items = list.querySelectorAll("li");
+console.log("🔄 Updating:", id, "->", quantity);
+      items.forEach(li => {
+        const itemId = li.getAttribute("data-item-id");
+        if (itemId === id) {
+          const quantityElement = li.querySelector(".item-quantity");
+          if (quantityElement) {
+            quantityElement.textContent = quantity;
+          }
+          if (quantity <= 0) {
+            li.remove();
+          }
+        }
+      });
+
+      // 🔧 Cập nhật lại giá trị trong biến orderItems
+      const item = orderItems.find(i => i.id === id);
+      if (item) item.quantity = quantity;
+    }
+
+</script>
