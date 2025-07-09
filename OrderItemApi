@@ -1,0 +1,128 @@
+ENDPOINT: /order-items
+
++ GET: /order-items/{tableId}
+ - Response: if(have not item)
+  {
+    "code": 404,
+    "status": "404 NOT_FOUND",
+    "message": "Table haven't items",
+    "path": "/restaurant/api/order-items/20007e94-fdf3-4a75-9d71-f1f659180f52",
+    "timestamp": "2025-07-09T23:32:58.920511600"
+}
+
+- Response: if(have item)
+{
+    "code": 200,
+    "status": "success",
+    "message": "Danh sách món trong bàn",
+    "data": [
+              {
+                  "id": "13f99470-4759-405f-b77f-b5a47a19208f",
+                  "tableId": "20007e94-fdf3-4a75-9d71-f1f659180f52",
+                  "dishId": "82a6b610-35a7-4185-a003-8501b0423a75",
+                  "dishName": "Bánh mì xúc xích",
+                  "price": 10000.00,
+                  "unit": "món",
+                  "image": null,
+                  "quantity": 2,
+                  "note": "don't put sugar",
+                  "status": "Ordered"
+              },
+              {
+                  "id": "13f99470-4759-405f-b77f-b5a47a19208f",
+                  "tableId": "20007e94-fdf3-4a75-9d71-f1f659180f52",
+                  "dishId": "924k738b-35a7-4185-a003-8501b0423a75",
+                  "dishName": "Phở, di sản phi vật thể quốc gia",
+                  "price": 10000.00,
+                  "unit": "món",
+                  "image": null,
+                  "quantity": 2,
+                  "note": "don't put sugar",
+                  "status": "Ordered"
+              }
+          ]
+}
+
+
+
+---------------------------------------------------------------------------------------------------------------------------
++ POST: /order-items/{tableId}
+
+  - Request: (post array[], not object only)
+[
+    {
+        "tableId":"20007e94-fdf3-4a75-9d71-f1f659180f52",
+        "dishId": "82a6b610-35a7-4185-a003-8501b0423a75",
+        "quantity": 2,   //quantity >= 1, this is post new, it's not update quantity. update quantity bellow
+        "note": "don't put sugar"
+    },
+    {
+        "tableId":"20007e94-fdf3-4a75-9d71-f1f659180f52",
+        "dishId": "82a6b610-35a7-4185-a003-8501b0423a75",
+        "quantity": 2,
+        "note": "don't put sugar"
+    }
+]
+
+  - Response: 
+{
+    "code": 200,
+    "status": "success",
+    "message": "Thêm món vào bàn thành công",
+    "data": [
+              {
+                  "id": "13f99470-4759-405f-b77f-b5a47a19208f",
+                  "tableId": "20007e94-fdf3-4a75-9d71-f1f659180f52",
+                  "dishId": "82a6b610-35a7-4185-a003-8501b0423a75",
+                  "dishName": "Bánh mì xúc xích",
+                  "price": 10000.00,
+                  "unit": "món",
+                  "image": null,
+                  "quantity": 2,
+                  "note": "don't put sugar",
+                  "status": "Ordered"
+              },
+              {
+                  "id": "13f99470-4759-405f-b77f-b5a47a19208f",
+                  "tableId": "20007e94-fdf3-4a75-9d71-f1f659180f52",
+                  "dishId": "924k738b-35a7-4185-a003-8501b0423a75",
+                  "dishName": "Phở, di sản phi vật thể quốc gia",
+                  "price": 10000.00,
+                  "unit": "món",
+                  "image": null,
+                  "quantity": 2,
+                  "note": "don't put sugar",
+                  "status": "Ordered"
+              }
+          ]
+}
+
+---------------------------------------------------------------------------------------------------------------------------
++ PATCH: /order-items/{tableId}/quantity  (update quantity)
+  - Request: 
+{
+    "id": "13f99470-4759-405f-b77f-b5a47a19208f", //id of order items, id của món trong bàn
+    "quantity": -1   //số lượng muốn thêm
+}
+
+  - Response:
+{
+    "code": 200,
+    "status": "success",
+    "message": "Cập nhật số lượng món thành công",
+    "data": {
+        "id": "13f99470-4759-405f-b77f-b5a47a19208f",
+        "quantity": 1   // new quantity after updated
+    }
+}
+
+
+---------------------------------------------------------------------------------------------------------------------------
++ DELETE: /order-items/{orderItemId}
+  - Response:
+{
+    "code": 200,
+    "status": "success",
+    "message": "Xóa món thành công"
+}
+
