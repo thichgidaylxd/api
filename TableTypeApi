@@ -1,0 +1,50 @@
+ENDPOINT: /tables/type
++ GET: 
+ {
+    "code": 200,
+    "status": "success",
+    "message": "Danh sách loại bàn",
+    "data": [
+                {
+                    "id": "033bc6d6-8e47-4697-a3db-58b78bce6e5b",
+                    "name": "1111"
+                },
+                {
+                    "id": "4124d13c-bce0-400e-bad0-948bdd8ccd72",
+                    "name": "Bàn 11"
+                }
+            ]
+}
+
+
++ POST: 
+  -Request:
+      {
+        name: "Ban Vip"
+      }
+  - Response: 
+      {
+        "code": 200,
+        "status": "success",
+        "message": "Danh sách loại bàn",
+        "data": [
+                  {
+                      "id": "033bc6d6-8e47-4697-a3db-58b78bce6e5b",
+                      "name": "1111"
+                  },
+                  {
+                      "id": "4124d13c-bce0-400e-bad0-948bdd8ccd72",
+                      "name": "Bàn 11"
+                  }
+              ]
+    }
+
+
+
++ DELETE: /tables/type/{tableTypeId}
+ - Response: 
+{
+    "code": 200,
+    "status": "success",
+    "message": "Xóa loại bàn thành công"
+}
