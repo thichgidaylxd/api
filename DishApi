@@ -1,0 +1,94 @@
+ENDPOINT: /dishes
+
++ GET: (get all dish)
+{
+    "code": 200,
+    "status": "success",
+    "message": "Tất cả món",
+    "data": [
+              {
+                  "id": "82a6b610-35a7-4185-a003-8501b0423a75",
+                  "dishType": {
+                      "id": "003953a2-fa26-450b-b18f-c4950e5359d2",
+                      "name": "ăn ngon"
+                  },
+                  "name": "Bánh mì xúc xích",
+                  "price": 10000.00,
+                  "unit": "món",
+                  "note": null,
+                  "image": null,
+                  "status": true,
+                  "createdAt": "2025-07-07T11:53:29"
+              }
+           ]
+}
+
++ GET: /dishes?dishTypeId={dishTypeId}      (get dish by dish type)
+ex: http://localhost:8081/restaurant/api/dishes?dishTypeId=003953a2-fa26-450b-b18f-c4950e5359d2 (Nhìn dishTypeId của response và endpoint sẽ hiểu)
+{
+    "code": 200,
+    "status": "success",
+    "message": "Món theo loại món",
+    "data": [
+              {
+                  "id": "82a6b610-35a7-4185-a003-8501b0423a75",
+                  "dishType": {
+                      "id": "003953a2-fa26-450b-b18f-c4950e5359d2",
+                      "name": "ăn ngon"
+                  },
+                  "name": "Bánh mì xúc xích",
+                  "price": 10000.00,
+                  "unit": "món",
+                  "note": null,
+                  "image": null,
+                  "status": true,
+                  "createdAt": "2025-07-07T11:53:29"
+            }
+        ]
+}
+
+
++ POST: 
+  - Request:
+  {
+      "dishType": {
+          "id": "003953a2-fa26-450b-b18f-c4950e5359d2",
+          "name": "ăn ngon"
+      },
+      "name": "Phở",
+      "price": 10000.00,
+      "unit": "món",
+      "note": null,   //can null
+      "image": null,   //can null
+  }
+
+- Response:
+  {
+    "code": 200,
+    "status": "success",
+    "message": "thêm món thành công",
+    "data": {
+        "id": "9ceb1e85-dcd6-4695-89e9-9cfbe4866677",
+        "dishType": {
+            "id": "003953a2-fa26-450b-b18f-c4950e5359d2",
+            "name": "ăn ngon"
+        },
+        "name": "Phở",
+        "price": 10000.00,
+        "unit": "món",
+        "note": null,
+        "image": null,
+        "status": true,
+        "createdAt": "2025-07-07T11:53:29"
+    }
+}
+
+
++ PUT: /dishes/{dishId}
++ DELETE: /dishes/{dishId}
+-  Response
+{
+    "code": 200,
+    "status": "success",
+    "message": "Món đã xóa thành công"
+}
