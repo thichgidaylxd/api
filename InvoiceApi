@@ -30,11 +30,6 @@
                                         "quantity": 12
                                     }
                                 ],
-          "customer": {
-              "id": "3bab4cdf-642d-416d-b695-44a2d3fecf79",
-              "name": "Dũng",
-              "phone": "1234568810"
-          },
           "status": "paid"
       },.....
   ]
@@ -44,11 +39,6 @@
 
 + POST: /invoice/{tableId} (create invoice)
   - Request: 
-{
-  "customerName": "Dũng",
-  "customerPhone": "1234568810"
-}
-
 
   - Response: 
 {
@@ -79,11 +69,6 @@
                                       "quantity": 12
                                   }
                               ],
-        "customer": {
-            "id": "3bab4cdf-642d-416d-b695-44a2d3fecf79",
-            "name": "Dũng",
-            "phone": "1234568810"
-        },
         "status": "paid"
     }
 }
